@@ -607,47 +607,6 @@ all: vmlinux
 ifeq ($(cc-name),clang)
 ifneq ($(CROSS_COMPILE),)
 CLANG_TRIPLE	?= $(CROSS_COMPILE)
-<<<<<<< HEAD
-CLANG_TARGET	:= --target=$(notdir $(CROSS_COMPILE:%-=%))
-GCC_TOOLCHAIN	:= $(realpath $(dir $(shell which $(LD)))/..)
-endif
-ifneq ($(GCC_TOOLCHAIN),)
-CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
-endif
-KBUILD_CPPFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
-KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
-KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
-KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
-KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
-KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
-KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
-KBUILD_CFLAGS += $(call cc-disable-warning, return-stack-address)
-KBUILD_CFLAGS += $(call cc-disable-warning, duplicate-decl-specifier)
-KBUILD_CFLAGS += $(call cc-disable-warning, pointer-bool-conversion)
-KBUILD_CFLAGS += $(call cc-disable-warning, format-truncation)
-KBUILD_CFLAGS += $(call cc-disable-warning, format-overflow)
-KBUILD_CFLAGS += $(call cc-disable-warning, int-in-bool-context)
-KBUILD_CFLAGS += $(call cc-disable-warning, attribute-alias)
-KBUILD_CFLAGS += $(call cc-disable-warning, unused-value)
-KBUILD_CFLAGS += $(call cc-disable-warning, fortify-source)
-KBUILD_CFLAGS += $(call cc-disable-warning, unsequenced)
-# Quiet clang warning: comparison of unsigned expression < 0 is always false
-KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
-# CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
-# source of a reference will be _MergedGlobals and not on of the whitelisted names.
-# See modpost pattern 2
-KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
-KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
-KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
-KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
-else
-
-# These warnings generated too much noise in a regular build.
-# Use make W=1 to enable them (see scripts/Makefile.build)
-KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
-endif
-KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
-=======
 CLANG_FLAGS	:= --target=$(notdir $(CLANG_TRIPLE:%-=%))
 ifeq ($(shell $(srctree)/scripts/clang-android.sh $(CC) $(CLANG_FLAGS)), y)
 $(error "Clang with Android --target detected. Did you specify CLANG_TRIPLE?")
@@ -665,7 +624,6 @@ KBUILD_CFLAGS	+= $(CLANG_FLAGS)
 KBUILD_AFLAGS	+= $(CLANG_FLAGS)
 export CLANG_FLAGS
 endif
->>>>>>> a5391eff7c9f09fa69ab40f342e3eef700749877
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
 
@@ -768,19 +726,25 @@ endif
 endif
 KBUILD_CFLAGS += $(stackp-flag)
 
-<<<<<<< HEAD
-=======
 ifeq ($(cc-name),clang)
-KBUILD_CPPFLAGS += -Qunused-arguments
-KBUILD_CFLAGS += -Wno-format-invalid-specifier
-KBUILD_CFLAGS += -Wno-gnu
-KBUILD_CFLAGS += -Wno-address-of-packed-member
+KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
+KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
+KBUILD_CFLAGS += $(call cc-disable-warning, return-stack-address)
+KBUILD_CFLAGS += $(call cc-disable-warning, duplicate-decl-specifier)
+KBUILD_CFLAGS += $(call cc-disable-warning, pointer-bool-conversion)
+KBUILD_CFLAGS += $(call cc-disable-warning, unused-value)
+KBUILD_CFLAGS += $(call cc-disable-warning, fortify-source)
+KBUILD_CFLAGS += $(call cc-disable-warning, unsequenced)
 # Quiet clang warning: comparison of unsigned expression < 0 is always false
-KBUILD_CFLAGS += -Wno-tautological-compare
+KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
 # CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
 # source of a reference will be _MergedGlobals and not on of the whitelisted names.
 # See modpost pattern 2
-KBUILD_CFLAGS += -mno-global-merge
+KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
+KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
+KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
+KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
 else
 
 # These warnings generated too much noise in a regular build.
@@ -789,7 +753,6 @@ KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
->>>>>>> a5391eff7c9f09fa69ab40f342e3eef700749877
 ifdef CONFIG_FRAME_POINTER
 KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
 else
@@ -1400,11 +1363,7 @@ help:
 	@echo  '  firmware_install- Install all firmware to INSTALL_FW_PATH'
 	@echo  '                    (default: $$(INSTALL_MOD_PATH)/lib/firmware)'
 	@echo  '  dir/            - Build all files in dir and below'
-<<<<<<< HEAD
 	@echo  '  dir/file.[ois]  - Build specified target only'
-=======
-	@echo  '  dir/file.[oisS] - Build specified target only'
->>>>>>> a5391eff7c9f09fa69ab40f342e3eef700749877
 	@echo  '  dir/file.ll     - Build the LLVM assembly file'
 	@echo  '                    (requires compiler support for LLVM assembly generation)'
 	@echo  '  dir/file.lst    - Build specified mixed source/assembly target only'
